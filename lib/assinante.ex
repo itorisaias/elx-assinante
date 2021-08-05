@@ -14,10 +14,10 @@ defmodule Assinante do
 
   ## Exemplo
 
-      iex> Assinante.cadastrar("Maria", 123123, 123456789, :prepago)
+      iex> Assinante.cadastrar("Maria", "123123", "123456789", :prepago)
       {:ok, "Assinante Maria cadastrado com sucesso!"}
       iex> Assinante.assinantes_prepago()
-      [%Assinante{cpf: 123456789, nome: "Maria", numero: 123123, plano: :prepago}]
+      [%Assinante{cpf: "123456789", nome: "Maria", numero: "123123", plano: %Prepago{}}]
   """
   def assinantes_prepago(), do: read(:prepago)
 
@@ -26,10 +26,10 @@ defmodule Assinante do
 
   ## Exemplo
 
-      iex> Assinante.cadastrar("Maria", 123123, 123456789, :pospago)
+      iex> Assinante.cadastrar("Maria", "123123", "123456789", :pospago)
       {:ok, "Assinante Maria cadastrado com sucesso!"}
       iex> Assinante.assinantes_pospago()
-      [%Assinante{cpf: 123456789, nome: "Maria", numero: 123123, plano: :pospago}]
+      [%Assinante{cpf: "123456789", nome: "Maria", numero: "123123", plano: %Pospago{}}]
   """
   def assinantes_pospago(), do: read(:pospago)
 
@@ -38,14 +38,14 @@ defmodule Assinante do
 
   ## Exemplo
 
-      iex> Assinante.cadastrar("Maria", 123123, 123456789, :pospago)
+      iex> Assinante.cadastrar("Maria", "123123", "123456789", :pospago)
       {:ok, "Assinante Maria cadastrado com sucesso!"}
-      iex> Assinante.cadastrar("Itor", 123124, 123456781, :prepago)
+      iex> Assinante.cadastrar("Itor", "123124", "123456781", :prepago)
       {:ok, "Assinante Itor cadastrado com sucesso!"}
       iex> Assinante.assinantes()
       [
-        %Assinante{cpf: 123456781, nome: "Itor", numero: 123124, plano: :prepago},
-        %Assinante{cpf: 123456789, nome: "Maria", numero: 123123, plano: :pospago}
+        %Assinante{cpf: "123456781", nome: "Itor", numero: "123124", plano: %Prepago{}},
+        %Assinante{cpf: "123456789", nome: "Maria", numero: "123123", plano: %Pospago{}}
       ]
   """
   def assinantes(), do: read(:prepago) ++ read(:pospago)
@@ -66,12 +66,12 @@ defmodule Assinante do
   ## Exemplo
 
 
-      iex> Assinante.cadastrar("Maria", 123123, 123456789, :pospago)
+      iex> Assinante.cadastrar("Maria", "123123", "123456789", :pospago)
       {:ok, "Assinante Maria cadastrado com sucesso!"}
-      iex> Assinante.cadastrar("Itor", 123124, 123456781, :prepago)
+      iex> Assinante.cadastrar("Itor", "123124", "123456781", :prepago)
       {:ok, "Assinante Itor cadastrado com sucesso!"}
-      iex> Assinante.buscar_assinante(123123)
-      %Assinante{cpf: 123456789, nome: "Maria", numero: 123123, plano: :pospago}
+      iex> Assinante.buscar_assinante("123123")
+      %Assinante{cpf: "123456789", nome: "Maria", numero: "123123", plano: %Pospago{}}
   """
   def buscar_assinante(numero, key \\ :all), do: buscar(numero, key)
 
@@ -83,32 +83,34 @@ defmodule Assinante do
   - nome: parametro do nome do assinantes
   - numero: numero unico e caso exista pode retornar um erro
   - cpf: parametro do CPF assinantes
-  - plano: opcinal e caso não seja informado sera utilizado como default `prepago`
+  - plano: plano desejado sendo eles `:prepago` ou `:pospago`
 
   ## Exemplo
 
-      iex> Assinante.cadastrar("Maria", 123123, 123456789)
+      iex> Assinante.cadastrar("Maria", "123123", "123456789", :prepago)
       {:ok, "Assinante Maria cadastrado com sucesso!"}
   """
-  def cadastrar(nome, numero, cpf, plano \\ :prepago) do
+  def cadastrar(nome, numero, cpf, :prepago), do: cadastrar(nome, numero, cpf, %Prepago{})
+  def cadastrar(nome, numero, cpf, :pospago), do: cadastrar(nome, numero, cpf, %Pospago{})
+  def cadastrar(nome, numero, cpf, plano) do
     case buscar_assinante(numero) do
       nil ->
-        (read(plano) ++
-           [
-             %__MODULE__{
-               nome: nome,
-               numero: numero,
-               cpf: cpf,
-               plano: plano
-             }
-           ])
+        assinante = %__MODULE__{nome: nome, numero: numero, cpf: cpf, plano: plano}
+        (read(pega_plano(assinante)) ++ [assinante])
         |> :erlang.term_to_binary()
-        |> write(plano)
+        |> write(pega_plano(assinante))
 
         {:ok, "Assinante #{nome} cadastrado com sucesso!"}
 
       _assinante ->
         {:error, "Assinante com este numero já existe!"}
+    end
+  end
+
+  defp pega_plano(assinante) do
+    case assinante.plano.__struct__ === Prepago do
+      true -> :prepago
+      false -> :pospago
     end
   end
 
@@ -132,15 +134,16 @@ defmodule Assinante do
 
   ## Exemplo
 
-      iex> Assinante.cadastrar("Maria", 123123, 123456789, :pospago)
+      iex> Assinante.cadastrar("Maria", "123123", "123456789", :pospago)
       {:ok, "Assinante Maria cadastrado com sucesso!"}
-      iex> Assinante.deletar(123123)
+      iex> Assinante.deletar("123123")
       {:ok, "Assinante Maria deletado!"}
   """
   def deletar(numero) do
     assinante = buscar_assinante(numero)
 
-    resut_delete = assinantes()
+    resut_delete =
+      assinantes()
       |> List.delete(assinante)
       |> :erlang.term_to_binary()
       |> write(assinante.plano)
