@@ -15,7 +15,10 @@ defmodule Prepago do
       custo <= assinante.plano.creditos ->
         plano = assinante.plano
         plano = %__MODULE__{plano | creditos: plano.creditos - custo}
-        assinante = %Assinante{assinante | plano: plano}
+
+        %Assinante{assinante | plano: plano}
+        |> Chamada.registrar(data, duracao)
+
         {:ok, "A chamada custo #{custo}, e voce tem #{plano.creditos} de creditos"}
 
       true ->

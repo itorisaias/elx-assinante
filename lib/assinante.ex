@@ -5,7 +5,7 @@ defmodule Assinante do
   A função mais utilizada é a função `cadastrar/4`
   """
 
-  defstruct nome: nil, numero: nil, cpf: nil, plano: nil
+  defstruct nome: nil, numero: nil, cpf: nil, plano: nil, chamadas: []
 
   @assinantes_file_name %{:prepago => "pre.txt", :pospago => "pos.txt"}
 
@@ -92,10 +92,12 @@ defmodule Assinante do
   """
   def cadastrar(nome, numero, cpf, :prepago), do: cadastrar(nome, numero, cpf, %Prepago{})
   def cadastrar(nome, numero, cpf, :pospago), do: cadastrar(nome, numero, cpf, %Pospago{})
+
   def cadastrar(nome, numero, cpf, plano) do
     case buscar_assinante(numero) do
       nil ->
         assinante = %__MODULE__{nome: nome, numero: numero, cpf: cpf, plano: plano}
+
         (read(pega_plano(assinante)) ++ [assinante])
         |> :erlang.term_to_binary()
         |> write(pega_plano(assinante))
@@ -140,14 +142,46 @@ defmodule Assinante do
       {:ok, "Assinante Maria deletado!"}
   """
   def deletar(numero) do
+    {assinante, nova_lista} = deletar_item(numero)
+
+    nova_lista
+    |> :erlang.term_to_binary()
+    |> write(pega_plano(assinante))
+
+    {:ok, "Assinante #{assinante.nome} deletado!"}
+  end
+
+  defp deletar_item(numero) do
     assinante = buscar_assinante(numero)
 
-    resut_delete =
-      assinantes()
+    nova_lista =
+      read(pega_plano(assinante))
       |> List.delete(assinante)
-      |> :erlang.term_to_binary()
-      |> write(assinante.plano)
 
-    {resut_delete, "Assinante #{assinante.nome} deletado!"}
+    {assinante, nova_lista}
+  end
+
+  @doc """
+  Função para atualizar o assinante
+
+  ## Parametros
+
+  - numero: numero do assinante
+  - assinante: novo payload do usuario
+
+  ## Exemplo
+  """
+  def atualizar(numero, assinante) do
+    {assinante_antigo, nova_lista} = deletar_item(numero)
+
+    case assinante.plano.__struct__ == assinante_antigo.plano.__struct__ do
+      true ->
+        (nova_lista ++ [assinante])
+        |> :erlang.term_to_binary()
+        |> write(pega_plano(assinante))
+
+      false ->
+        {:error, "Assinante não pode alterar o plano"}
+    end
   end
 end

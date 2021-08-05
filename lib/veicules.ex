@@ -4,13 +4,14 @@ defmodule Veicules do
   @colors_enabled ~w[black red green yellow blue]
 
   def create(name, model, color, year) do
-    {:ok, %__MODULE__{
-      color: color,
-      name: name,
-      model: model,
-      year: year,
-      price: nil
-    }}
+    {:ok,
+     %__MODULE__{
+       color: color,
+       name: name,
+       model: model,
+       year: year,
+       price: nil
+     }}
     |> validate_year()
     |> validate_color()
   end
