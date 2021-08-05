@@ -39,3 +39,12 @@ jobs:
 
       - name: Format check
         run: mix format --check-formatted
+
+      - name: Build doc
+        run: mix docs
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: main
+          folder: doc
