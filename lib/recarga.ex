@@ -1,6 +1,22 @@
 defmodule Recarga do
   defstruct data: nil, valor: nil
 
+  @doc """
+  Funcao para realizar recarga
+
+  ## Parametros
+
+  - data: a data que esta sendo realizada a chamada
+  - valor: valor da recarga
+  - numero: o numero que deseja recarregar (apenas usuario do `:prepago`)
+
+  ## Exemplo
+
+      iex> Assinante.cadastrar("Itor", "123456", "43214213", :prepago)
+      {:ok, "Assinante Itor cadastrado com sucesso!"}
+      iex> Recarga.nova(DateTime.utc_now(), 10, "123456")
+      {:ok, "Recarga realizada com sucesso"}
+  """
   def nova(data, valor, numero) do
     assinante = Assinante.buscar_assinante(numero, :prepago)
     plano = assinante.plano
