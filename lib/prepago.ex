@@ -25,4 +25,8 @@ defmodule Prepago do
         {:error, "Voce não tem creditos"}
     end
   end
+
+  def imprimir_conta(month, year, numero) do
+    Contas.imprimir(month, year, numero, :prepago)
+  end
 end

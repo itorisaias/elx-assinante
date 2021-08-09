@@ -24,7 +24,7 @@ defmodule Chamada do
   def registrar(assinante, data, duracao) do
     assinante_atualizado = %Assinante{
       assinante
-      | chamadas: assinante.chamadas ++ %__MODULE__{date: data, duracao: duracao}
+      | chamadas: assinante.chamadas ++ [%__MODULE__{date: data, duracao: duracao}]
     }
 
     Assinante.atualizar(assinante.numero, assinante_atualizado)

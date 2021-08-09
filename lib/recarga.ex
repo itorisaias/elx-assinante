@@ -1,5 +1,5 @@
 defmodule Recarga do
-  defstruct data: nil, valor: nil
+  defstruct date: nil, valor: nil
 
   @doc """
   Funcao para realizar recarga
@@ -24,7 +24,7 @@ defmodule Recarga do
     plano = %Prepago{
       plano
       | creditos: plano.creditos + valor,
-        recargas: plano.recargas ++ [%__MODULE__{data: data, valor: valor}]
+        recargas: plano.recargas ++ [%__MODULE__{date: data, valor: valor}]
     }
 
     assinante = %Assinante{assinante | plano: plano}
