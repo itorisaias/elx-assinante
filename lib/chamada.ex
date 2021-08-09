@@ -11,7 +11,7 @@ defmodule Chamada do
   ## Parametros
 
   - assinante: o assinante que está realizando a chamada (%Assinante{}})
-  - data: a data de realização da chamada
+  - date: a data de realização da chamada
   - duracao: o tempo de duração da chamada
 
   ## Exemplo

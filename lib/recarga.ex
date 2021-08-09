@@ -6,7 +6,7 @@ defmodule Recarga do
 
   ## Parametros
 
-  - data: a data que esta sendo realizada a chamada
+  - date: a data que esta sendo realizada a chamada
   - valor: valor da recarga
   - numero: o numero que deseja recarregar (apenas usuario do `:prepago`)
 

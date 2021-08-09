@@ -13,7 +13,7 @@ defmodule RecargaTest do
   end
 
   test "deve validar a estrutura" do
-    assert %Recarga{data: DateTime.utc_now(), valor: 10}.valor == 10
+    assert %Recarga{date: DateTime.utc_now(), valor: 10}.valor == 10
   end
 
   test "deve realizar uma recarga" do
