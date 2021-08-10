@@ -75,7 +75,7 @@ defmodule Telefonia do
       IO.puts("Chamadas:")
       IO.inspect(assinante.chamadas)
       IO.puts("Total de chamadas: #{Enum.count(assinante.chamadas)}")
-      IO.puts("Valor da fatura: #{Enum.count(assinante.plano.valor)}")
+      IO.puts("Valor da fatura: #{assinante.plano.valor}")
       IO.puts("-----------------------------------------------------")
     end)
   end
